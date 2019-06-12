@@ -8,29 +8,28 @@ volumes: [
     node(label) {
         def APP_NAME = "node-app"
         def tag = "dev"
-            stage("clone code") {
-                container('slave1') {                  
-  stage 'checkout  repository'
-  checkout([$class: 'GitSCM',
-        branches: [[name: '*/master']],
-        doGenerateSubmoduleConfigurations: false,
-        extensions: [],
-        submoduleCfg: [],
-        userRemoteConfigs: [[
-            
-            url: 'https://github.com/durgaprasad444/node-app.git'
-    ]]])
-
+        def gitBranch = env.BRANCH_NAME
+           
+          stage("clone code") {
+                container('slave1') {  
+                    sh """
+                    echo "branch is"  ${gitBranch}          
+                    """
                 }
-            }
-        
-        stage("build & publish") {
+  }
+                    stage('checkout scm') {
+                        container('slave1') {
+                               checkout scm
+                            
+ }
+                    }
+                    
+                    stage("build & publish") {
             container('slave1') {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexus_cred',
 usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                    sh """
-                      cd /home/jenkins/workspace/node-app
-                      echo "registry=http://35.196.136.112:8081/repository/npm-group/" >> .npmrc
+                      echo "registry=http://prdartifact.digitaldais.net:8081/repository/npm-group/" >> .npmrc
                       echo -n '${USERNAME}:${PASSWORD}' | openssl base64 >> .npmrc
                       sed -i '2 s/^/_auth=/' .npmrc
                       echo -e "email=nexus@gmail.com\nalways-auth=true" >> .npmrc
@@ -38,10 +37,10 @@ usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                       sed -i 's/npm-group/npm-private/g' .npmrc
                       npm publish
                     """
+                    }
 }
 }
-}
-stage('Build image') {
+             stage('Build image') {
             container('slave1') {
                 sh """
                 cd /home/jenkins/workspace/node-app
@@ -67,5 +66,6 @@ stage('Push image') {
                 sh "kubectl set image deployment/node-app node-app-dev-sha256=gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
             }
         }  
+
                 }
             }
