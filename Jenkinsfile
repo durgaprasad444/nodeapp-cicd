@@ -10,7 +10,7 @@ volumes: [
         def tag = "dev"
         def gitBranch = env.BRANCH_NAME
            
-          stage("clone code") {
+          stage("Checking Branch") {
                 container('slave1') {  
                     sh """
                     echo "branch is"  ${gitBranch}          
