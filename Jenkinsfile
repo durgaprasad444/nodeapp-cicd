@@ -43,7 +43,6 @@ usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
              stage('Build image') {
             container('slave1') {
                 sh """
-                cd /home/jenkins/workspace/node-app
                 docker build -t gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER .
                 """
                 
