@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 3000
+    targetPort: 3000
+  selector:
+    app: node-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-app
+  template:
+    metadata:
+      labels:
+        app: node-app
+    spec:
+    serviceAccountName: DevOps Service Account
+      containers:
+      - name: node-app
+        image: gcr.io/sentrifugo/node-app-dev:3
+        ports:
+        - containerPort: 3000
+      serviceAccountName: DevOps Service Account
