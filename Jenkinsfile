@@ -31,7 +31,7 @@ volumes: [
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nex',
 usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                    sh """
-                      echo "registry=http://35.227.76.219:8081:8081/repository/npm-group/" >> .npmrc
+                      echo "registry=http://35.227.76.219:8081/repository/npm-group/" >> .npmrc
                       echo -n '${USERNAME}:${PASSWORD}' | openssl base64 >> .npmrc
                       sed -i '2 s/^/_auth=/' .npmrc
                       echo -e "email=nexus@gmail.com\nalways-auth=true" >> .npmrc
