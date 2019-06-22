@@ -1,12 +1,12 @@
 def label = "jenkins-slave-${UUID.randomUUID().toString()}"
 podTemplate(label: label, containers: [
-    containerTemplate(name: 'slave1', image: 'gcr.io/sentrifugo/jenkins-slave:v1', ttyEnabled: true, command: 'cat')
+    containerTemplate(name: 'slave1', image: 'durgaprasad444/allinonecentos:v1', ttyEnabled: true, command: 'cat')
 ],
 volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]) {
     node(label) {
-        def APP_NAME = "node-app"
+        def APP_NAME = "nodeapp-cicd"
         def tag = "dev"
         def gitBranch = env.BRANCH_NAME
            
@@ -26,10 +26,10 @@ volumes: [
                     
                     stage("build & publish") {
             container('slave1') {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexus_cred',
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nex',
 usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                    sh """
-                      echo "registry=http://prdartifact.digitaldais.net:8081/repository/npm-group/" >> .npmrc
+                      echo "registry=http://35.227.76.219:8081:8081/repository/npm-group/" >> .npmrc
                       echo -n '${USERNAME}:${PASSWORD}' | openssl base64 >> .npmrc
                       sed -i '2 s/^/_auth=/' .npmrc
                       echo -e "email=nexus@gmail.com\nalways-auth=true" >> .npmrc
@@ -43,7 +43,7 @@ usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
              stage('Build image') {
             container('slave1') {
                 sh """
-                docker build -t gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER .
+                docker build -t gcr.io/kube-cluster-237706/${APP_NAME}-${tag}:$BUILD_NUMBER .
                 """
                 
   
@@ -52,7 +52,7 @@ usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 stage('Push image') {
     container('slave1') {
   docker.withRegistry('https://gcr.io', 'gcr:sentrifugo') {
-      sh "docker push gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
+      sh "docker push gcr.io/kube-cluster-237706/${APP_NAME}-${tag}:$BUILD_NUMBER"
     
     
   }
@@ -62,7 +62,8 @@ stage('Push image') {
 
   stage("deploy on kubernetes") {
             container('slave1') {
-                sh "kubectl set image deployment/node-app node-app-dev-sha256=gcr.io/sentrifugo/${APP_NAME}-${tag}:$BUILD_NUMBER"
+                sh "kubectl apply -f node-app.yaml"
+                sh "kubectl set image deployment/node-app node-app=gcr.io/kube-cluster-237706/${APP_NAME}-${tag}:$BUILD_NUMBER"
             }
         }  
 
