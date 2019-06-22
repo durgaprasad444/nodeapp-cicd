@@ -24,10 +24,8 @@ spec:
       labels:
         app: node-app
     spec:
-    serviceAccountName: DevOps Service Account
       containers:
       - name: node-app
-        image: gcr.io/sentrifugo/node-app-dev:3
+        image: durgaprasad444/hello-world:latest
         ports:
         - containerPort: 3000
-      serviceAccountName: DevOps Service Account
