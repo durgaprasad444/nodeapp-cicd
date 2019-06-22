@@ -9,21 +9,23 @@ volumes: [
         def APP_NAME = "nodeapp-cicd"
         def tag = "dev"
         def gitBranch = env.BRANCH_NAME
-           
-          stage("Checking Branch") {
-                container('slave1') {  
-                    sh """
-                    echo "branch is"  ${gitBranch}          
-                    """
+         
+         stage("clone code") {
+                container('slave1') {                  
+  stage 'checkout  repository'
+  checkout([$class: 'GitSCM',
+        branches: [[name: '*/master']],
+        doGenerateSubmoduleConfigurations: false,
+        extensions: [],
+        submoduleCfg: [],
+        userRemoteConfigs: [[
+            
+            url: 'https://github.com/durgaprasad444/nodeapp-cicd.git'
+    ]]])
+
                 }
-  }
-                    stage('checkout scm') {
-                        container('slave1') {
-                               checkout scm
-                            
- }
-                    }
-                    
+            }
+         
                     stage("build & publish") {
             container('slave1') {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nex',
