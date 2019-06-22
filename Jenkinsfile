@@ -53,7 +53,7 @@ usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
 }
 stage('Push image') {
     container('slave1') {
-  docker.withRegistry('https://gcr.io', 'gcr:sentrifugo') {
+  docker.withRegistry('https://gcr.io', 'gcr:gcr_authentication_json_ke') {
       sh "docker push gcr.io/kube-cluster-237706/${APP_NAME}-${tag}:$BUILD_NUMBER"
     
     
