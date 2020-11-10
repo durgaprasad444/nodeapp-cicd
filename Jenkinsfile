@@ -58,8 +58,8 @@ volumes: [
         stage("DEPLOY ON KUBERNETES") {
             container('slave') {
                 sh "cd /home/jenkins/agent/workspace/node-app/nodeapp-cicd"
-                sh "kubectl apply -f hello-kubernetes.yaml"
-                sh "kubectl set image deployment/hello-kubernetes hello-kubernetes=durgaprasad444/${APP_NAME}-${tag}:$BUILD_NUMBER"
+                sh "kubectl apply -f node-app.yaml"
+                sh "kubectl set image deployment/node-app node-app=durgaprasad444/${APP_NAME}-${tag}:$BUILD_NUMBER"
             }
         }
                 }
